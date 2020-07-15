@@ -9,9 +9,15 @@ var hexEnc = require("crypto-js/enc-hex");
 
 var coinConfig = coins[config.coin];
 
+global.net = require('net');
+global.tls = require('tls');
+
 const ElectrumClient = require('electrum-client');
 
 var electrumClients = [];
+
+var noConnectionsErrorText = "No ElectrumX connection available. This could mean that the connection was lost or that ElectrumX is processing transactions and therefore not accepting requests. This tool will try to reconnect. If you manage your own ElectrumX server you may want to check your ElectrumX logs.";
+
 
 function connectToServers() {
 	return new Promise(function(resolve, reject) {
@@ -40,16 +46,50 @@ function connectToServer(host, port, protocol) {
 		// default protocol is 'tcp' if port is 50001, which is the default unencrypted port for electrumx
 		var defaultProtocol = port === 50001 ? 'tcp' : 'tls';
 
-		var electrumClient = new ElectrumClient(port, host, protocol || defaultProtocol);
-		// TODO: turn app name and version in a configuration parameter
-		electrumClient.initElectrum({client:"bch-rpc-explorer-v0.0.1", version:"1.4"}).then(function(res) {
-			debugLog("Connected to ElectrumX Server: " + host + ":" + port + ", versions: " + JSON.stringify(res));
+		var electrumConfig = { client:"bch-rpc-explorer", version:"1.4" };
+		var electrumPersistencePolicy = { retryPeriod: 10000, maxRetry: 1000, callback: null };
 
-			electrumClients.push(electrumClient);
+		var onConnect = function(client, versionInfo) {
+			debugLog(`Connected to ElectrumX @ ${host}:${port} (${JSON.stringify(versionInfo)})`);
+
+			electrumClients.push(client);
 
 			resolve();
+		};
 
+		var onClose = function(client) {
+			debugLog(`Disconnected from ElectrumX @ ${host}:${port}`);
+
+			var index = electrumClients.indexOf(client);
+
+			if (index > -1) {
+				electrumClients.splice(index, 1);
+			}
+		};
+
+		var onError = function(err) {
+			debugLog(`Electrum error: ${JSON.stringify(err)}`);
+
+			utils.logError("937gf47dsyde", err, {host:host, port:port, protocol:protocol});
+		};
+
+		var onLog = function(str) {
+			debugLog(str);
+		};
+
+		var electrumCallbacks = {
+			onConnect: onConnect,
+			onClose: onClose,
+			onError: onError,
+			onLog: onLog
+		};
+
+		var electrumClient = new ElectrumClient(port, host, protocol || defaultProtocol, null, electrumCallbacks);
+		electrumClient.initElectrum(electrumConfig, electrumPersistencePolicy).then(function() {
+			// success
 		}).catch(function(err) {
+			debugLog(`Error connecting to ElectrumX @ ${host}:${port}`);
+
 			utils.logError("137rg023xx7gerfwdd", err, {host:host, port:port, protocol:protocol});
 
 			reject(err);
@@ -61,12 +101,8 @@ function connectToServer(host, port, protocol) {
 function runOnServer(electrumClient, f) {
 	return new Promise(function(resolve, reject) {
 		f(electrumClient).then(function(result) {
-			if (result.success) {
-				resolve({result:result.response, server:electrumClient.host});
+			resolve({result:result, server:electrumClient.host});
 
-			} else {
-				reject({error:result.error, server:electrumClient.host});
-			}
 		}).catch(function(err) {
 			utils.logError("dif0e21qdh", err, {host:electrumClient.host, port:electrumClient.port});
 
@@ -94,6 +130,12 @@ function runOnAllServers(f) {
 
 function getAddressDetails(address, scriptPubkey, sort, limit, offset) {
 	return new Promise(function(resolve, reject) {
+		if (electrumClients.length == 0) {
+			reject({error: "No ElectrumX Connection", userText: noConnectionsErrorText});
+
+			return;
+		}
+
 		var addrScripthash = hexEnc.stringify(sha256(hexEnc.parse(scriptPubkey)));
 		addrScripthash = addrScripthash.match(/.{2}/g).reverse().join("");
 
