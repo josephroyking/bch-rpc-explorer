@@ -411,7 +411,7 @@ router.get("/tx/:transactionId", function (req, res, next) {
 				reject(err);
 			});
 		}));
-		if (tx.confirmations == null) {
+		if (tx.confirmations == 0) {
 
 			promises.push(new Promise(function (resolve, reject) {
 				coreApi.getMempoolTxDetails(txid).then(function (mempoolDetails) {

@@ -82,7 +82,7 @@ block content
 							div.row
 								div.summary-table-label Chain Lenght
 								div.summary-table-content.text-monospace
-									span #{mempoolDetails.ancestors.length + mempoolDetails.descendants.length + 1}
+									span #{mempoolDetails.entry.ancestorcount + mempoolDetails.entry.descendantcount -1}
 
 						if (isTxConfirmed)
 							div.row
@@ -123,7 +123,7 @@ block content
 										// the following is not a traling space
 										span Spendable in block 
 										a(href=("/block-height/" + result.getrawtransaction.locktime)) ##{result.getrawtransaction.locktime.toLocaleString()}
-										span or later
+										span  or later
 										a(href="https://bitcoin.org/en/developer-guide#locktime-and-sequence-number", data-toggle="tooltip", title="More info about locktime", target="_blank")
 											i.fas.fa-info-circle
 									else
@@ -364,5 +364,3 @@ block content
 							code.json.bg-light(data-lang="json") #{JSON.stringify(mempoolDetails, null, 4)}
 
 				//pre #{JSON.stringify(result.txInputs, null, 4)}
-
-
