@@ -340,12 +340,14 @@ app.onStartup = function () {
 	global.specialBlocks = {};
 	global.specialAddresses = {};
 
-	// Get selected explorer info, remove it from list of siblings to link to
+	// TODO: move the explorer list out to an external JSON file to decouple codebase from any one branding/provider
 	let allExplorers = new Map([
 		["mainnet", new utils.ExplorerLink("mainnet", "Mainnet Explorer", "https://explorer.bitcoincash.org")],
 		["testnet", new utils.ExplorerLink("testnet", "Testnet Explorer", "https://texplorer.bitcoincash.org")],
 		["activationTestnet", new utils.ExplorerLink("activationTestnet", "Activation Testnet Explorer", "https://upgrade-explorer.bitcoincash.org")],
 	]);
+
+	// Get selected explorer info, remove it from list of siblings to link to
 	const selectedExplorerKey = process.env.BTCEXP_EXPLORER_INSTANCE;
 	global.selectedExplorer = allExplorers.get(selectedExplorerKey);
 	if (!allExplorers.delete(selectedExplorerKey)) {
@@ -353,14 +355,20 @@ app.onStartup = function () {
 		debugLog(`Invalid explorer-instance \`${selectedExplorerKey}\` configured, please use --help and pick a valid one:`);
 		process.exit(1);
 	}
-	let otherExplorers = []
-	for (const [key, value] of allExplorers) {
-		otherExplorers.push(value);
-	}
-	global.siblingExplorers = otherExplorers;
 
-	const activationTimestamp = process.env.BTCEXP_ACTIVATION_TIMESTAMP;
+	global.siblingExplorers = undefined;
+	// Only if running on sibling explorer mode
+	if (process.env.BTCEXP_SIBLING_EXPLORER) {
+		// Populate array with the remaining explorers
+		let otherExplorers = []
+		for (const [key, value] of allExplorers) {
+			otherExplorers.push(value);
+		}
+		global.siblingExplorers = otherExplorers;
+	}
+
 	if (global.selectedExplorer.identifier == 'activationTestnet') {
+		const activationTimestamp = process.env.BTCEXP_ACTIVATION_TIMESTAMP;
 		// need a timestamp if this is an activationTestnet explorer
 		if (activationTimestamp == undefined) {
 			debugLog(`Please inform an activation timestamp when running with --explorer-instance \'activationTestnet\'`);

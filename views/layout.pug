@@ -24,16 +24,7 @@ html(lang="en")
 	body.bg-dark
 		nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
 			div.container
-				span(class="dropdown")
-					a(href="/")
-						img.header-image(src="/img/logo/bch.svg", alt="logo")
-						span.navbar-brand #{selectedExplorer.displayName}
-					button(class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
-					div(class="dropdown-menu")
-						each explorer in siblingExplorers
-							a(class="dropdown-item" href=`${explorer.url}`)
-								img.header-image(src="/img/logo/bch.svg", alt="logo")
-								span.navbar-brand #{explorer.displayName}
+				include includes/explorers-dropdown.pug
 
 				if selectedExplorer.identifier == 'activationTestnet'
 					span(class="navbar-text")
