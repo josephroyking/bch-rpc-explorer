@@ -263,8 +263,16 @@ function decodeRawTransaction(hex) {
 }
 
 function getBlockStatsByHeight(height) {
-	return tryCacheThenRpcApi(miscCache, "getBlockStatsByHeight-" + height, ONE_YR, function() {
-		return rpcApi.getBlockStatsByHeight(height);
+	return new Promise(function(resolve, reject) {
+		rpcApi.getBlockHash(height).then(function(blockhash) {
+			getBlockStats(blockhash).then(function(blockstats) {
+				resolve(blockstats);
+			}).catch(function(err) {
+				reject(err);
+			});
+		}).catch(function(err) {
+			reject(err);
+		});
 	});
 }
 

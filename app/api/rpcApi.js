@@ -160,10 +160,14 @@ function getChainTxStats(blockCount) {
 	return getRpcDataWithParams({method:"getchaintxstats", parameters:[blockCount]});
 }
 
+function getBlockHash(blockHeight) {
+	return getRpcDataWithParams({method:"getblockhash", parameters:[blockHeight]});
+}
+
 function getBlockByHeight(blockHeight) {
 	if (!config.blockByHeightSupport) {
 		return new Promise(function(resolve, reject) {
-			getRpcDataWithParams({method:"getblockhash", parameters:[blockHeight]}).then(function(blockhash) {
+			getBlockHash(blockHeight).then(function(blockhash) {
 				getBlockByHash(blockhash).then(function(block) {
 					resolve(block);
 
@@ -239,7 +243,7 @@ function getBlockHeaderByHash(blockhash) {
 function getBlockHeaderByHeight(blockHeight) {
 	if (!config.headerByHeightSupport) {
 		return new Promise(function(resolve, reject) {
-			getRpcDataWithParams({method:"getblockhash", parameters:[blockHeight]}).then(function(blockhash) {
+			getBlockHash(blockHeight).then(function(blockhash) {
 				getBlockHeaderByHash(blockhash).then(function(blockHeader) {
 					resolve(blockHeader);
 
@@ -526,6 +530,7 @@ module.exports = {
 	getMempoolInfo: getMempoolInfo,
 	getMempoolTxids: getMempoolTxids,
 	getMiningInfo: getMiningInfo,
+	getBlockHash: getBlockHash,
 	getBlockByHeight: getBlockByHeight,
 	getBlockByHash: getBlockByHash,
 	getRawTransaction: getRawTransaction,
