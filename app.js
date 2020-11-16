@@ -371,11 +371,12 @@ app.onStartup = function () {
 		const activationTimestamp = process.env.BTCEXP_ACTIVATION_TIMESTAMP;
 		// need a timestamp if this is an activationTestnet explorer
 		if (activationTimestamp == undefined) {
-			debugLog(`Please inform an activation timestamp when running with --explorer-instance \'activationTestnet\'`);
-			process.exit(1);
+			debugLog(`Running in post-upgrade mode.`);
+			global.currentActivation = -1;
+		} else {
+			global.currentActivation = moment.unix(activationTimestamp);
+			global.nextActivation = moment.unix(activationTimestamp).add(1, 'day');
 		}
-		global.currentActivation = moment.unix(activationTimestamp);
-		global.nextActivation = moment.unix(activationTimestamp).add(1, 'day');
 	}
 
 	loadChangelog();
