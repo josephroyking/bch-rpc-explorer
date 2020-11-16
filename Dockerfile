@@ -1,7 +1,10 @@
 FROM node:14.8.0
 
 RUN groupadd -r explorer && useradd -mrg explorer -s /bin/bash explorer
-
+RUN mkdir /block-explorer
+WORKDIR /block-explorer
+COPY . .
+RUN chown -R explorer:explorer /block-explorer
 USER explorer
 ENV HOME=/home/explorer
 
@@ -11,9 +14,7 @@ RUN mkdir .local
 RUN npm set prefix ${HOME}/.local
 ENV PATH=${PATH}:${HOME}/.local/bin
 
-# Grab latest explorer and install
-RUN git clone https://github.com/bitcoincashorg/block-explorer
-WORKDIR ${HOME}/block-explorer
+WORKDIR /block-explorer
 RUN npm install
 
 ENTRYPOINT ["./bin/cli.js"]
