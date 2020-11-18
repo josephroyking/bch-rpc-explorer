@@ -342,9 +342,9 @@ app.onStartup = function () {
 
 	// TODO: move the explorer list out to an external JSON file to decouple codebase from any one branding/provider
 	let allExplorers = new Map([
-		["mainnet", new utils.ExplorerLink("mainnet", "Mainnet Explorer", "https://explorer.bitcoincash.org")],
-		["testnet", new utils.ExplorerLink("testnet", "Testnet Explorer", "https://texplorer.bitcoincash.org")],
-		["activationTestnet", new utils.ExplorerLink("activationTestnet", "Activation Testnet Explorer", "https://upgrade-explorer.bitcoincash.org")],
+		["mainnet", new utils.ExplorerLink("mainnet", "Mainnet Explorer", "https://explorer.bitcoinabc.org")],
+		["testnet", new utils.ExplorerLink("testnet", "Testnet Explorer", "https://texplorer.bitcoinabc.org")],
+		["activationTestnet", new utils.ExplorerLink("activationTestnet", "Activation Testnet Explorer", "https://upgrade-explorer.bitcoinabc.org")],
 	]);
 
 	// Get selected explorer info, remove it from list of siblings to link to

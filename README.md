@@ -7,9 +7,7 @@ Simple, database-free Bitcoin Cash blockchain explorer, via RPC. Built with Node
 
 This tool is intended to be a simple, self-hosted explorer for the Bitcoin blockchain, driven by RPC calls to your own bitcoind node. This tool is easy to run but currently lacks features compared to database-backed explorers.
 
-Whatever reasons one might have for running a full node (trustlessness, technical curiosity, supporting the network, etc) it's helpful to appreciate the "fullness" of your node. With this explorer, you can not only explore the blockchain (in the traditional sense of the term "explorer"), but also explore the functional capabilities of your own node.
-
-Live demo available at: [https://explorer.bitcoinunlimited.info](https://explorer.bitcoinunlimited.info)
+Live demo available at: [https://explorer.bitcoinabc.org](https://explorer.bitcoinabc.org)
 
 # Features
 
@@ -32,25 +30,23 @@ The below instructions are geared toward BCH, but can be adapted easily to other
 
 ## Prerequisites
 
-1. Install and run a full, archiving node - [instructions](https://bitcoinunlimited.info/download). Ensure that your bitcoin node has full transaction indexing enabled (`txindex=1`) and the RPC server enabled (`server=1`).
+1. Recent version of Docker
+1. Install and run a full, archiving node - [instructions](https://hub.docker.com/r/bitcoinabc/bitcoin-abc/). Ensure that your bitcoin node has full transaction indexing enabled (`txindex=1`) and the RPC server enabled (`server=1`).
 2. Synchronize your node with the Bitcoin network.
-3. "Recent" version of Node.js (8+ recommended).
-4. You could also run an [ElectrsCash](https://github.com/bitcoinunlimited/ElectrsCash) and configure the explorer to received data from it
 
 ## Instructions
 
+On the project base directory:
+
 ```bash
-npm install -g bch-rpc-explorer
-bch-rpc-explorer
+docker build -t bch-rpc-explorer .
+docker run -p 3002:3002 bch-rpc-explorer --bitcoind-user [rpcusername] --bitcoind-pass [rpcpassword]
 ```
 
-If you're running on mainnet with the default datadir and port, this Should Just Work.
+If have a mainnet node running with the default datadir and port, this should work.
 Open [http://127.0.0.1:3002/](http://127.0.0.1:3002/) to view the explorer.
 
-You may set configuration options in a `.env` file or using CLI args.
-See [configuration](#configuration) for details.
-
-### Configuration
+### Configuration (Advanced)
 
 Configuration options may be passed as environment variables
 or by creating an env file at `~/.config/bch-rpc-explorer.env`
@@ -60,19 +56,14 @@ See [.env-sample](.env-sample) for a list of the options and details for formatt
 You may also pass options as CLI arguments, for example:
 
 ```bash
-bch-rpc-explorer --port 8080 --bitcoind-port 18443 --bitcoind-cookie ~/.bitcoin/regtest/.cookie
+docker run bch-rpc-explorer --port 8080 --bitcoind-port 18443 --bitcoind-user [rpcusername] --bitcoind-pass [rpcpassword]
 ```
 
-See `bch-rpc-explorer --help` for the full list of CLI options.
-
-## Run via Docker
-
-1. `docker build -t bch-rpc-explorer .`
-2. `docker run -p 3002:3002 -it bch-rpc-explorer`
+See `docker run bch-rpc-explorer --help` for the full list of CLI options.
 
 # Support
 
-* [bitcoincash:pq6snv5fcx2fp6dlzg7s0m9zs8yqh74335tzvvfcmq](bitcoincash:pq6snv5fcx2fp6dlzg7s0m9zs8yqh74335tzvvfcmq)
+* [bitcoincash:qqeht8vnwag20yv8dvtcrd4ujx09fwxwsqqqw93w88](bitcoincash:qqeht8vnwag20yv8dvtcrd4ujx09fwxwsqqqw93w88)
 
 
 [npm-ver-img]: https://img.shields.io/npm/v/bch-rpc-explorer.svg?style=flat
