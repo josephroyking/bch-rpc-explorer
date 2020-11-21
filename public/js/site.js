@@ -13,6 +13,6 @@ function updateFeeRateValue(element, val, digits) {
 		url: `/api/utils/formatCurrencyAmountInSmallestUnits/${val},${digits}`
 
 	}).done(function(result) {
-		element.html(`<span>${result.val} <small>${result.currencyUnit}/vB</small></span>`);
+		element.html(`<span>${result.val} <small>${result.currencyUnit}/B</small></span>`);
 	});
 }
