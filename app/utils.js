@@ -194,11 +194,7 @@ function getCurrencyFormatInfo(formatType) {
 		}
 	}
 
-	if (formatCurrencyCache[formatType] != null) {
-		return formatCurrencyCache[formatType];
-	}
-
-	return null;
+	return formatCurrencyCache[formatType];
 }
 
 function formatCurrencyAmountWithForcedDecimalPlaces(amount, formatType, forcedDecimalPlaces) {
