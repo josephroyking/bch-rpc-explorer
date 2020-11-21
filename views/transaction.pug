@@ -216,7 +216,7 @@ block content
 
 							h6 Decoded
 							div.bg-light.px-2.py-2.border
-								span.text-monospace.word-wrap #{utils.hex2ascii(result.getrawtransaction.vin[0].coinbase)}
+								span.text-monospace.word-wrap #{utils.hex2string(result.getrawtransaction.vin[0].coinbase)}
 
 				div.card.shadow-sm.mb-3
 					div.card-body.px-2.px-md-3
@@ -311,7 +311,7 @@ block content
 													br
 													span #{vin.coinbase}
 													br
-													span.text-muted (decoded) #{utils.hex2ascii(vin.coinbase)}
+													span.text-muted (decoded) #{utils.hex2string(vin.coinbase)}
 
 				div.card.shadow-sm.mb-3
 					div.card-body.px-2.px-md-3
@@ -336,7 +336,7 @@ block content
 												span #{vout.scriptPubKey.asm}
 												if (vout.scriptPubKey.asm.startsWith("OP_RETURN"))
 													br
-													span.text-muted (decoded) #{utils.hex2ascii(vout.scriptPubKey.asm)}
+													span.text-muted (decoded) #{utils.hex2string(vout.scriptPubKey.asm)}
 
 			div.tab-pane(id="tab-json", role="tabpanel")
 				div.card.shadow-sm.mb-3

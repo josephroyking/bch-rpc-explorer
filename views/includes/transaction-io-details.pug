@@ -46,9 +46,9 @@ div.row.text-monospace
 										small.data-tag.bg-success.mr-2(title="Coinbase transactions are special transactions created by the miner of a block. They distribute the block reward (subsidy) as the miner chooses, along with all of the fees paid by transactions included in the block.", data-toggle="tooltip") coinbase
 										
 										div.pt-1
-											small.font-weight-bold(tistle="ASCII encoded", data-toggle="tooltip") data
-											small (ascii) - 
-											small #{utils.hex2ascii(txVin.coinbase)}
+											small.font-weight-bold(tistle="UTF-8 encoded", data-toggle="tooltip") data
+											small (utf-8) - 
+											small #{utils.hex2string(txVin.coinbase)}
 											br
 											small.border-dotted(title=`${txVin.coinbase}`, data-toggle="tooltip") show raw
 
@@ -206,8 +206,8 @@ div.row.text-monospace
 										
 										div
 											small.font-weight-bold data
-											small (ascii) - 
-											small #{utils.hex2ascii(vout.scriptPubKey.asm.substring("OP_RETURN ".length))}
+											small (utf-8) - 
+											small #{utils.hex2string(vout.scriptPubKey.asm.substring("OP_RETURN ".length))}
 											br
 											small
 												a(href="javascript:void(0)" onclick=`$('#op-return-hex-${tx.txid}-${vout.n}').show(); $(this).hide(); return false;`) show raw
