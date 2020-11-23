@@ -215,18 +215,18 @@ div.tab-content
 							else
 								span Transactions
 
-					if (false || (!config.demoSite && !crawlerBot && txCount > 20))
+					if (!config.demoSite && !crawlerBot && txCount > 20)
 						div.col-md-8.text-right
 							small.mr-1.text-muted Show
 							div.btn-group(role="group")
 								a.btn.btn-sm.btn-primary.px-2.py-0(href=(paginationBaseUrl + "?limit=20"), class=((limit == 20 && txCount > limit) ? "active" : false)) 20
-								
+
 								if (txCount > 50)
 									a.btn.btn-sm.btn-primary.px-2.py-0(href=(paginationBaseUrl + "?limit=50") class=(limit == 50 ? "active" : false)) 50
-								
+
 								if (txCount > 100)
 									a.btn.btn-sm.btn-primary.px-2.py-0(href=(paginationBaseUrl + "?limit=100"), class=(limit == 100 ? "active" : false)) 100
-								
+
 								a.btn.btn-sm.btn-primary.px-2.py-0(href=(paginationBaseUrl + "?limit=3000"), class=(limit >= txCount ? "active" : false)) all
 
 				hr
@@ -249,16 +249,13 @@ div.tab-content
 										span  
 										a(data-toggle="tooltip", title=(coinConfig.name + " Fun! See transaction for details"))
 											i.fas.fa-certificate.text-primary
-										
+
 							div.card-body.px-2.px-md-3
-								//pre
-								//	code.json.bg-light #{JSON.stringify(result.txInputsByTransaction[tx.txid], null, 4)}
-								if (true)
-									- var txInputs = result.txInputsByTransaction[tx.txid];
-									- var blockHeight = result.getblock.height;
+								- var txInputs = result.txInputsByTransaction[tx.txid];
+								- var blockHeight = result.getblock.height;
 
 									include ./transaction-io-details.pug
-									
+
 						//pre
 						//	code.json.bg-light #{JSON.stringify(tx, null, 4)}
 

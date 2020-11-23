@@ -79,16 +79,6 @@ div.row.text-monospace
 													span.mr-1 (addr:
 													a(href=("/address/" + vout.scriptPubKey.addresses[0]), class=(txIOHighlightAddress == vout.scriptPubKey.addresses[0] ? "font-weight-bold" : null)) #{vout.scriptPubKey.addresses[0]}
 
-											if (false)
-												small
-													span.border-dotted(title="Transaction output", data-toggle="tooltip") txo
-													span.mr-1 :
-													a(href=("/tx/" + txInput.txid + "#output-" + txVin.vout)) #{utils.ellipsize(txInput.txid, 20)}[#{txVin.vout}]
-
-										else
-											
-
-
 								div.tx-io-value
 									if (txVin.coinbase)
 										- var currencyValue = coinConfig.blockRewardFunction(blockHeight, activeBlockchain);
@@ -174,10 +164,9 @@ div.row.text-monospace
 							div.tx-io-desc
 								if (vout.scriptPubKey)
 									if (vout.scriptPubKey.addresses)
-										if (true)
-											div.mb-tiny
-												small.data-tag.bg-dark
-													span(title=`Output Type: ${utils.outputTypeName(vout.scriptPubKey.type)}`, data-toggle="tooltip") #{utils.outputTypeAbbreviation(vout.scriptPubKey.type)}
+										div.mb-tiny
+											small.data-tag.bg-dark
+												span(title=`Output Type: ${utils.outputTypeName(vout.scriptPubKey.type)}`, data-toggle="tooltip") #{utils.outputTypeAbbreviation(vout.scriptPubKey.type)}
 
 										each addr in vout.scriptPubKey.addresses
 											a(id=("output-" + voutIndex), href=("/address/" + addr))
