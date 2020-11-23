@@ -428,10 +428,12 @@ router.get("/tx/:transactionId", function (req, res, next) {
 		}
 
 		promises.push(new Promise(function (resolve, reject) {
-			global.rpcClient.command('getblock', tx.blockhash, function (err3, result3, resHeaders3) {
-				res.locals.result.getblock = result3;
-
+			coreApi.getBlockHeader(tx.blockhash).then(function (blockHeader) {
+				res.locals.result.blockHeader = blockHeader;
 				resolve()
+			}).catch(function (err) {
+				res.locals.pageErrors.push(utils.logError("089d7fyg04334", err));
+				reject(err);
 			});
 		}));
 

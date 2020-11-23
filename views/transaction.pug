@@ -27,7 +27,7 @@ block content
 
 		- var totalInputValue = new Decimal(0);
 		if (result.getrawtransaction.vin[0].coinbase)
-			- totalInputValue = totalInputValue.plus(new Decimal(coinConfig.blockRewardFunction(result.getblock.height, activeBlockchain)));
+			- totalInputValue = totalInputValue.plus(new Decimal(coinConfig.blockRewardFunction(result.blockHeader.height, activeBlockchain)));
 		each txInput, txInputIndex in result.txInputs
 			if (txInput)
 				- var vout = txInput;
@@ -88,7 +88,7 @@ block content
 							div.row
 								div.summary-table-label Block
 								div.summary-table-content.text-monospace
-									a(href=("/block/" + result.getrawtransaction.blockhash)) ##{result.getblock.height.toLocaleString()}
+									a(href=("/block/" + result.getrawtransaction.blockhash)) ##{result.blockHeader.height.toLocaleString()}
 
 						if (isTxConfirmed)
 							div.row
@@ -152,7 +152,7 @@ block content
 									- var currencyValue = new Decimal(totalOutputValue).minus(totalInputValue);
 									include includes/value-display.pug
 
-							- var blockRewardMax = coinConfig.blockRewardFunction(result.getblock.height, activeBlockchain);
+							- var blockRewardMax = coinConfig.blockRewardFunction(result.blockHeader.height, activeBlockchain);
 							if (parseFloat(totalOutputValue) < parseFloat(blockRewardMax))
 								div.row
 									div.summary-table-label
@@ -240,8 +240,8 @@ block content
 						- var tx = result.getrawtransaction;
 						- var txInputs = result.txInputs;
 						- var blockHeight = -1;
-						if (result && result.getblock)
-							- blockHeight = result.getblock.height;
+						if (result && result.blockHeader)
+							- blockHeight = result.blockHeader.height;
 						include includes/transaction-io-details.pug
 
 				if (mempoolDetails)
