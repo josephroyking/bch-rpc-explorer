@@ -427,15 +427,14 @@ router.get("/tx/:transactionId", function (req, res, next) {
 			}));
 		}
 
-		promises.push(new Promise(function (resolve, reject) {
-			coreApi.getBlockHeader(tx.blockhash).then(function (blockHeader) {
-				res.locals.result.blockHeader = blockHeader;
-				resolve()
-			}).catch(function (err) {
-				res.locals.pageErrors.push(utils.logError("089d7fyg04334", err));
-				reject(err);
-			});
-		}));
+		if (tx.blockhash !== undefined) {
+			promises.push(new Promise(function(resolve, reject) {
+				coreApi.getBlockHeader(tx.blockhash).then(function(blockHeader) {
+					res.locals.result.blockHeader = blockHeader;
+					resolve()
+				});
+			}));
+		}
 
 		Promise.all(promises).then(function () {
 			res.render("transaction");
