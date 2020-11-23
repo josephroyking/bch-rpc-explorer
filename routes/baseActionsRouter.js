@@ -11,6 +11,7 @@ var utils = require('./../app/utils.js');
 var config = require("./../app/config.js");
 var coreApi = require("./../app/api/coreApi.js");
 var addressApi = require("./../app/api/addressApi.js");
+var rpcApi = require("./../app/api/rpcApi.js");
 
 router.get("/", function (req, res, next) {
 	if (req.session.host == null || req.session.host.trim() == "") {
@@ -151,8 +152,8 @@ router.post("/search", function (req, res, next) {
 				return;
 			}
 
-			coreApi.getBlockByHash(query).then(function (blockByHash) {
-				if (blockByHash) {
+			coreApi.getBlockHeader(query).then(function(blockHeader) {
+				if (blockHeader) {
 					res.redirect("/block/" + query);
 
 					return;
@@ -176,9 +177,9 @@ router.post("/search", function (req, res, next) {
 				res.redirect("/");
 			});
 
-		}).catch(function (err) {
-			coreApi.getBlockByHash(query).then(function (blockByHash) {
-				if (blockByHash) {
+		}).catch(function(err) {
+			coreApi.getBlockHeader(query).then(function(blockHeader) {
+				if (blockHeader) {
 					res.redirect("/block/" + query);
 
 					return;
@@ -196,8 +197,8 @@ router.post("/search", function (req, res, next) {
 		});
 
 	} else if (!isNaN(query)) {
-		coreApi.getBlockByHeight(parseInt(query)).then(function (blockByHeight) {
-			if (blockByHeight) {
+		coreApi.getBlockHeaderByHeight(parseInt(query)).then(function(blockHeader) {
+			if (blockHeader) {
 				res.redirect("/block-height/" + query);
 
 				return;
@@ -255,12 +256,11 @@ router.get("/block-height/:blockHeight", function (req, res, next) {
 	res.locals.offset = offset;
 	res.locals.paginationBaseUrl = "/block-height/" + blockHeight;
 
-	coreApi.getBlockByHeight(blockHeight).then(function (result) {
-		res.locals.result.getblockbyheight = result;
+	rpcApi.getBlockHash(blockHeight).then(function(blockHash) {
 		var promises = [];
 
-		promises.push(new Promise(function (resolve, reject) {
-			coreApi.getBlockByHashWithTransactions(result.hash, limit, offset).then(function (result) {
+		promises.push(new Promise(function(resolve, reject) {
+			coreApi.getBlockByHashWithTransactions(blockHash, limit, offset).then(function(result) {
 				res.locals.result.getblock = result.getblock;
 				res.locals.result.transactions = result.transactions;
 				res.locals.result.txInputsByTransaction = result.txInputsByTransaction;
@@ -274,8 +274,8 @@ router.get("/block-height/:blockHeight", function (req, res, next) {
 			});
 		}));
 
-		promises.push(new Promise(function (resolve, reject) {
-			coreApi.getBlockStats(result.hash).then(function (result) {
+		promises.push(new Promise(function(resolve, reject) {
+			coreApi.getBlockStats(blockHash).then(function(result) {
 				res.locals.result.blockstats = result;
 
 				resolve();
@@ -593,8 +593,8 @@ router.get("/address/:address", function (req, res, next) {
 								var blockHeightsPromises = [];
 								if (coinbaseTxs.length > 0) {
 									// we need to query some blockHeights by hash for some coinbase txs
-									blockHeightsPromises.push(new Promise(function (resolve2, reject2) {
-										coreApi.getBlocksByHash(coinbaseTxBlockHashes).then(function (blocksByHashResult) {
+									blockHeightsPromises.push(new Promise(function(resolve2, reject2) {
+										coreApi.getBlocks(coinbaseTxBlockHashes, false).then(function(blocksByHashResult) {
 											for (var txid in blockHashesByTxid) {
 												if (blockHashesByTxid.hasOwnProperty(txid)) {
 													blockHeightsByTxid[txid] = blocksByHashResult[blockHashesByTxid[txid]].height;

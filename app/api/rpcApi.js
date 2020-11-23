@@ -164,100 +164,14 @@ function getBlockHash(blockHeight) {
 	return getRpcDataWithParams({method:"getblockhash", parameters:[blockHeight]});
 }
 
-function getBlockByHeight(blockHeight) {
-	if (!config.blockByHeightSupport) {
-		return new Promise(function(resolve, reject) {
-			getBlockHash(blockHeight).then(function(blockhash) {
-				getBlockByHash(blockhash).then(function(block) {
-					resolve(block);
-
-				}).catch(function(err) {
-					reject(err);
-				});
-			}).catch(function(err) {
-				reject(err);
-			});
-		});
-	} else {
-		return new Promise(function(resolve, reject) {
-			getRpcDataWithParams({method:"getblock", parameters:[blockHeight]}).then(function(block) {
-				getBlockByHeightReal(blockHeight).then(function(block) {
-					resolve(block);
-
-				}).catch(function(err) {
-					reject(err);
-				});
-			}).catch(function(err) {
-				reject(err);
-			});
-		});
-	}
+function getBlock(hash_or_height) {
+	return getRpcDataWithParams({method:"getblock", parameters:[hash_or_height]});
 }
 
-function getBlockByHash(blockHash) {
-	debugLog("getBlockByHash: %s", blockHash);
-
-	return new Promise(function(resolve, reject) {
-		getRpcDataWithParams({method:"getblock", parameters:[blockHash]}).then(function(block) {
-			getRawTransaction(block.tx[0]).then(function(tx) {
-				block.coinbaseTx = tx;
-				block.totalFees = utils.getBlockTotalFeesFromCoinbaseTxAndBlockHeight(tx, block.height);
-				block.subsidy = coinConfig.blockRewardFunction(block.height, global.activeBlockchain);
-
-				resolve(block);
-
-			}).catch(function(err) {
-				reject(err);
-			});
-		}).catch(function(err) {
-			reject(err);
-		});
-	});
+function getBlockHeader(hash_or_height) {
+	return getRpcDataWithParams({method:"getblockheader", parameters:[hash_or_height]});
 }
 
-function getBlockByHeightReal(blockHeight) {
-	debugLog("getBlockByHeightReal: %s", blockHeight);
-
-	return new Promise(function(resolve, reject) {
-		getRpcDataWithParams({method:"getblock", parameters:[blockHeight]}).then(function(block) {
-			getRawTransaction(block.tx[0]).then(function(tx) {
-				block.coinbaseTx = tx;
-				block.totalFees = utils.getBlockTotalFeesFromCoinbaseTxAndBlockHeight(tx, block.height);
-				block.subsidy = coinConfig.blockRewardFunction(block.height, global.activeBlockchain);
-
-				resolve(block);
-
-			}).catch(function(err) {
-				reject(err);
-			});
-		}).catch(function(err) {
-			reject(err);
-		});
-	});
-}
-
-function getBlockHeaderByHash(blockhash) {
-	return getRpcDataWithParams({method:"getblockheader", parameters:[blockhash]});
-}
-
-function getBlockHeaderByHeight(blockHeight) {
-	if (!config.headerByHeightSupport) {
-		return new Promise(function(resolve, reject) {
-			getBlockHash(blockHeight).then(function(blockhash) {
-				getBlockHeaderByHash(blockhash).then(function(blockHeader) {
-					resolve(blockHeader);
-
-				}).catch(function(err) {
-					reject(err);
-				});
-			}).catch(function(err) {
-				reject(err);
-			});
-		});
-	} else {
-		return getRpcDataWithParams({method:"getblockheader", parameters:[blockHeight]});
-	}
-}
 function getAddress(address) {
 	return getRpcDataWithParams({method:"validateaddress", parameters:[address]});
 }
@@ -531,8 +445,7 @@ module.exports = {
 	getMempoolTxids: getMempoolTxids,
 	getMiningInfo: getMiningInfo,
 	getBlockHash: getBlockHash,
-	getBlockByHeight: getBlockByHeight,
-	getBlockByHash: getBlockByHash,
+	getBlock: getBlock,
 	getRawTransaction: getRawTransaction,
 	getUtxo: getUtxo,
 	getMempoolTxDetails: getMempoolTxDetails,
@@ -547,8 +460,7 @@ module.exports = {
 	getNetworkHashrate: getNetworkHashrate,
 	getBlockStats: getBlockStats,
 	getBlockStatsByHeight: getBlockStatsByHeight,
-	getBlockHeaderByHash: getBlockHeaderByHash,
-	getBlockHeaderByHeight: getBlockHeaderByHeight,
+	getBlockHeader: getBlockHeader,
 	decodeScript: decodeScript,
 	decodeRawTransaction: decodeRawTransaction,
 
