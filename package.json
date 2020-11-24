@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "async": "^3.2.0",
+    "axios": "^0.21.0",
     "basic-auth": "^2.0.1",
     "bitcoin-core": "^2.3.0",
     "bitcoinjs-lib": "^5.1.8",

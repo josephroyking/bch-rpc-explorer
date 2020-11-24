@@ -10,6 +10,7 @@ var Decimal = require("decimal.js");
 var utils = require('./../app/utils.js');
 var config = require("./../app/config.js");
 var coreApi = require("./../app/api/coreApi.js");
+var slpRest = require("./../app/api/slpRest.js")
 var addressApi = require("./../app/api/addressApi.js");
 
 router.get("/", function (req, res, next) {
@@ -385,7 +386,7 @@ router.get("/tx/:transactionId", function (req, res, next) {
 	if (req.query.output) {
 		output = parseInt(req.query.output);
 	}
-
+	
 	res.locals.txid = txid;
 	res.locals.output = output;
 
@@ -398,6 +399,34 @@ router.get("/tx/:transactionId", function (req, res, next) {
 		res.locals.result.txInputs = rawTxResult.txInputsByTransaction[txid]
 
 		var promises = [];
+
+		// Validate SLP tx
+		promises.push(new Promise(function (resolve, reject) {
+			slpRest.validateSlpTx(txid).then(function (apiResponse) {
+				res.locals.slpValidResponse = apiResponse.data.valid;
+				resolve();
+			}).catch(function (err) {
+				res.locals.pageErrors.push(utils.logError("slpRest.validateSlpTx", err));
+				reject(err)
+			})
+		}))
+		// Get details of SLP tx
+		promises.push(new Promise(function (resolve, reject) {
+			slpRest.txDetails(txid).then(function (apiResponse) {
+				// If not found
+				// Response will be { error: 'TXID not found' }
+				console.log(`apiResponse for txDetails:`)
+				console.log(JSON.stringify(apiResponse.data, null, 2))				
+				res.locals.txDetailsResponse = apiResponse.data.tokenInfo;
+				
+				resolve();
+			}).catch(function (err) {
+				res.locals.txDetailsResponse = false
+				//res.locals.pageErrors.push(utils.logError("slpRest.txDetails", err));
+				//reject(err)
+				resolve()
+			})
+		}))
 
 		promises.push(new Promise(function (resolve, reject) {
 			coreApi.getTxUtxos(tx).then(function (utxos) {
