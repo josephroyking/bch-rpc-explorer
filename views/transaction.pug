@@ -14,6 +14,20 @@ block content
 			br
 			small.text-monospace #{txid}
 		hr
+		
+		if (slpValidResponse)
+			h1.h3.word-wrap SLPA Transaction			
+				br
+				small.text-monospace slpIsValid #{slpValidResponse}
+				br
+				if (txDetailsResponse) 
+					small.text-monospace Transaction Type #{txDetailsResponse.transactionType}
+					br
+					small.text-monospace Token ID #{txDetailsResponse.tokenIdHex}
+					br
+					small.text-monospace Send Outputs #{JSON.stringify(txDetailsResponse.sendOutputs)}
+		hr
+
 
 		ul.nav.nav-tabs.mb-3
 			li.nav-item
