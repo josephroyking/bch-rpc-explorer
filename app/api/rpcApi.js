@@ -66,31 +66,15 @@ function getNetworkHashrate(blockCount=144) {
 	return getRpcDataWithParams({method:"getnetworkhashps", parameters:[blockCount]});
 }
 
-function getBlockStats(hash) {
+function getBlockStats(hash_or_height) {
 	if (semver.gte(global.btcNodeSemver, minRpcVersions.getblockstats)) {
-		if (hash == coinConfig.genesisBlockHashesByNetwork[global.activeBlockchain] && coinConfig.genesisBlockStatsByNetwork[global.activeBlockchain]) {
+		if ((hash_or_height == coinConfig.genesisBlockHashesByNetwork[global.activeBlockchain] || hash_or_height == 0) && coinConfig.genesisBlockStatsByNetwork[global.activeBlockchain]) {
 			return new Promise(function(resolve, reject) {
 				resolve(coinConfig.genesisBlockStatsByNetwork[global.activeBlockchain]);
 			});
 
 		} else {
-			return getRpcDataWithParams({method:"getblockstats", parameters:[hash]});
-		}
-	} else {
-		// unsupported
-		return unsupportedPromise(minRpcVersions.getblockstats);
-	}
-}
-
-function getBlockStatsByHeight(height) {
-	if (semver.gte(global.btcNodeSemver, minRpcVersions.getblockstats)) {
-		if (height == 0 && coinConfig.genesisBlockStatsByNetwork[global.activeBlockchain]) {
-			return new Promise(function(resolve, reject) {
-				resolve(coinConfig.genesisBlockStatsByNetwork[global.activeBlockchain]);
-			});
-
-		} else {
-			return getRpcDataWithParams({method:"getblockstats", parameters:[height]});
+			return getRpcDataWithParams({method:"getblockstats", parameters:[hash_or_height]});
 		}
 	} else {
 		// unsupported
@@ -463,7 +447,6 @@ module.exports = {
 	getUtxoSetSummary: getUtxoSetSummary,
 	getNetworkHashrate: getNetworkHashrate,
 	getBlockStats: getBlockStats,
-	getBlockStatsByHeight: getBlockStatsByHeight,
 	getBlockHeader: getBlockHeader,
 	decodeScript: decodeScript,
 	decodeRawTransaction: decodeRawTransaction,

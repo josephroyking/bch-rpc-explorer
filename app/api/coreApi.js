@@ -244,9 +244,9 @@ function getNetworkHashrate(blockCount) {
 	});
 }
 
-function getBlockStats(hash) {
-	return tryCacheThenRpcApi(miscCache, "getBlockStats-" + hash, ONE_YR, function() {
-		return rpcApi.getBlockStats(hash);
+function getBlockStats(hash_or_height) {
+	return tryCacheThenRpcApi(miscCache, "getBlockStats-" + hash_or_height, ONE_YR, function() {
+		return rpcApi.getBlockStats(hash_or_height);
 	});
 }
 
@@ -259,20 +259,6 @@ function decodeScript(hex) {
 function decodeRawTransaction(hex) {
 	return tryCacheThenRpcApi(miscCache, "decodeRawTransaction-" + hex, 1000 * 60 * 1000, function() {
 		return rpcApi.decodeRawTransaction(hex);
-	});
-}
-
-function getBlockStatsByHeight(height) {
-	return new Promise(function(resolve, reject) {
-		rpcApi.getBlockHash(height).then(function(blockhash) {
-			getBlockStats(blockhash).then(function(blockstats) {
-				resolve(blockstats);
-			}).catch(function(err) {
-				reject(err);
-			});
-		}).catch(function(err) {
-			reject(err);
-		});
 	});
 }
 
@@ -580,7 +566,7 @@ function getBlockHeadersByHeight(blockHeights) {
 
 function getBlocksStatsByHeight(blockHeights) {
 	return new Promise(function(resolve, reject) {
-		Promise.all(blockHeights.map(h => getBlockStatsByHeight(h))).then(function(results) {
+		Promise.all(blockHeights.map(h => getBlockStats(h))).then(function(results) {
 			resolve(results);
 		}).catch(function(err) {
 			reject(err);
@@ -945,7 +931,6 @@ module.exports = {
 	getUtxoSetSummary: getUtxoSetSummary,
 	getNetworkHashrate: getNetworkHashrate,
 	getBlockStats: getBlockStats,
-	getBlockStatsByHeight: getBlockStatsByHeight,
 	getBlocksStatsByHeight: getBlocksStatsByHeight,
 	getBlockHeader: getBlockHeader,
 	getBlockHeaderByHeight: getBlockHeaderByHeight,

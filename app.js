@@ -272,7 +272,7 @@ function refreshNetworkVolumes() {
 
 		for (var i = 0; i < (blocksPerDay * 1); i++) {
 			if (result.blocks - i >= 0) {
-				promises.push(coreApi.getBlockStatsByHeight(result.blocks - i));
+				promises.push(coreApi.getBlockStats(result.blocks - i));
 			}
 		}
 
