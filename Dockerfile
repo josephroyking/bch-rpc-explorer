@@ -13,6 +13,7 @@ WORKDIR ${HOME}
 RUN mkdir .local
 RUN npm set prefix ${HOME}/.local
 ENV PATH=${PATH}:${HOME}/.local/bin
+ENV NODE_ENV=production
 
 WORKDIR /block-explorer
 RUN npm install
