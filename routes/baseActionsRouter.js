@@ -100,6 +100,8 @@ router.get("/", function (req, res, next) {
 			}
 
 			res.render("blocks");
+			utils.perfMeasure(req);
+
 		}).catch(function (err) {
 			res.locals.pageErrors.push(utils.logError("32974hrbfbvc", err));
 
@@ -287,10 +289,14 @@ router.get("/block-height/:blockHeight", function (req, res, next) {
 
 		Promise.all(promises).then(function () {
 			res.render("block");
+
+			utils.perfMeasure(req);
+
 		}).catch(function (err) {
 			res.locals.userMessageMarkdown = `Failed loading block: height=**${blockHeight}**`;
 
 			res.render("block");
+
 		});
 	}).catch(function (err) {
 		res.locals.userMessageMarkdown = `Failed loading block: height=**${blockHeight}**`;
@@ -362,10 +368,13 @@ router.get("/block/:blockHash", function (req, res, next) {
 
 	Promise.all(promises).then(function () {
 		res.render("block");
+		utils.perfMeasure(req);
+
 	}).catch(function (err) {
 		res.locals.userMessageMarkdown = `Failed to load block: **${blockHash}**`;
 
 		res.render("block");
+
 	});
 });
 
@@ -428,6 +437,9 @@ router.get("/tx/:transactionId", function (req, res, next) {
 
 		Promise.all(promises).then(function () {
 			res.render("transaction");
+			utils.perfMeasure(req);
+
+
 		});
 
 	}).catch(function (err) {
@@ -706,10 +718,13 @@ router.get("/address/:address", function (req, res, next) {
 
 		Promise.all(promises.map(utils.reflectPromise)).then(function () {
 			res.render("address");
+			utils.perfMeasure(req);
+
 		}).catch(function (err) {
 			res.locals.pageErrors.push(utils.logError("32197rgh327g2", err));
 
 			res.render("address");
+
 		});
 
 	}).catch(function (err) {

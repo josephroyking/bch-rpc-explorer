@@ -22,7 +22,6 @@ debug.enable(process.env.DEBUG || "bchexp:app,bchexp:error");
 
 var debugLog = debug("bchexp:app");
 var debugLogError = debug("bchexp:error");
-var debugPerfLog = debug("bchexp:actionPerformace");
 
 var express = require('express');
 var favicon = require('serve-favicon');
@@ -586,28 +585,12 @@ app.use('/', baseActionsRouter);
 app.use('/api/', apiActionsRouter);
 app.use('/snippet/', snippetActionsRouter);
 
-app.use(function (req, res, next) {
-	var time = Date.now() - req.startTime;
-	var memdiff = process.memoryUsage().heapUsed - req.startMem;
-
-	debugPerfLog("Finished action '%s' in %d ms", req.path, time);
-	next();
-});
-
 /// catch 404 and forwarding to error handler
 app.use(function (req, res, next) {
-	res.status(404);
-	res.format({
-		html: function () {
-			res.render('404', { url: req.url })
-		},
-		json: function () {
-			res.json({ error: 'Not found' })
-		},
-		default: function () {
-			res.type('txt').send('Not found')
-		}
-	})
+	var err = new Error('Page not found');
+	err.status = 404;
+	next(err);
+
 });
 
 /// error handlers

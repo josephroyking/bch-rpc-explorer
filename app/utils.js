@@ -3,6 +3,7 @@ var debug = require("debug");
 var debugLog = debug("bchexp:utils");
 var debugErrorLog = debug("bchexp:error");
 var debugErrorVerboseLog = debug("bchexp:errorVerbose");
+var debugPerfLog = debug("bchexp:actionPerformace");
 
 var Decimal = require("decimal.js");
 var request = require("request");
@@ -82,7 +83,12 @@ var ipCache = {
 	}
 };
 
+function perfMeasure(req) {
+	var time = Date.now() - req.startTime;
+	var memdiff = process.memoryUsage().heapUsed - req.startMem;
 
+	debugPerfLog("Finished action '%s' in %d ms", req.path, time);
+}
 
 function redirectToConnectPageIfNeeded(req, res) {
 	if (!req.session.host) {
@@ -704,4 +710,5 @@ module.exports = {
 	prettyScript: prettyScript,
 	outputTypeAbbreviation: outputTypeAbbreviation,
 	outputTypeName: outputTypeName,
+	perfMeasure: perfMeasure
 };

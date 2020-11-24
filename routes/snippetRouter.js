@@ -26,10 +26,12 @@ const forceCsrf = csurf({ ignoreMethods: [] });
 
 
 
-router.get("/formatCurrencyAmount/:amt", function(req, res, next) {
+router.get("/formatCurrencyAmount/:amt", function (req, res, next) {
 	res.locals.currencyValue = req.params.amt;
 
 	res.render("includes/value-display");
+	utils.perfMeasure(req);
+
 });
 
 
