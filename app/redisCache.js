@@ -1,14 +1,27 @@
 var redis = require("redis");
 var bluebird = require("bluebird");
+var msgpack = require("msgpack-lite");
+var Decimal = require("decimal.js");
 
 var config = require("./config.js");
 var utils = require("./utils.js");
+
+var codec = msgpack.createCodec();
+codec.addExtPacker(0x3F, Decimal, function(decimal) {
+	return msgpack.encode(decimal.toNumber());
+});
+codec.addExtUnpacker(0x3F, function(buffer) {
+	return new Decimal(msgpack.decode(buffer));
+});
 
 var redisClient = null;
 if (config.redisUrl) {
 	bluebird.promisifyAll(redis.RedisClient.prototype);
 
-	redisClient = redis.createClient({url:config.redisUrl});
+	redisClient = redis.createClient({
+		url: config.redisUrl,
+		return_buffers: true
+	});
 }
 
 function createCache(keyPrefix, onCacheEvent) {
@@ -28,7 +41,7 @@ function createCache(keyPrefix, onCacheEvent) {
 					} else {
 						onCacheEvent("redis", "hit", prefixedKey);
 
-						resolve(JSON.parse(result));
+						resolve(msgpack.decode(result, {codec: codec}));
 					}
 				}).catch(function(err) {
 					onCacheEvent("redis", "error", prefixedKey);
@@ -42,7 +55,7 @@ function createCache(keyPrefix, onCacheEvent) {
 		set: function(key, obj, maxAgeMillis) {
 			var prefixedKey = `${keyPrefix}-${key}`;
 
-			redisClient.set(prefixedKey, JSON.stringify(obj), "PX", maxAgeMillis);
+			redisClient.set(prefixedKey, msgpack.encode(obj, {codec: codec}), "PX", maxAgeMillis);
 		}
 	};
 }

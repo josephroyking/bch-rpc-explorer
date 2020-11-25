@@ -4,17 +4,17 @@ Decimal8 = Decimal.clone({ precision:8, rounding:8 });
 var currencyUnits = [
 	{
 		type:"native",
-		name:"BCH",
+		name:"BCHA",
 		multiplier:1,
 		default:true,
-		values:["", "bch", "BCH"],
+		values:["", "bcha", "BCHA"],
 		decimalPlaces:8
 	},
 	{
 		type:"native",
-		name:"mBCH",
+		name:"mBCHA",
 		multiplier:1000,
-		values:["mbch"],
+		values:["mbcha"],
 		decimalPlaces:5
 	},
 	{
@@ -51,13 +51,8 @@ var currencyUnits = [
 
 module.exports = {
 	name:"Bitcoin Cash",
-	ticker:"BCH",
+	ticker:"BCHA",
 	logoUrl:"/img/logo/bch.svg",
-	siteTitle:"Bitcoin Cash Explorer",
-	siteDescriptionHtml:"<b>BCH Explorer</b> is <a href='https://github.com/sickpig/bch-rpc-explorer). If you run your own [Bitcoin Cash Full Node](https://www.bitcoincash.org/nodes.html), **BCH Explorer** can easily run alongside it, communicating via RPC calls. See the project [ReadMe](https://github.com/sickpig/bch-rpc-explorer) for a list of features and instructions for running.",
-	nodeTitle:"Bitcoin Cash Full Node",
-	nodeUrl:"https://bitcoinunlimited.info/download",
-	demoSiteUrl: "https://explorer.bitcoinunlimited.info",
 	maxBlockSize: 32000000,
 	difficultyAdjustmentBlockOffset: 1008,
 	difficultyAdjustmentBlockCount: 4,
@@ -69,7 +64,7 @@ module.exports = {
 	targetBlockTimeSeconds: 600,
 	targetBlockTimeMinutes: 10,
 	currencyUnits:currencyUnits,
-	currencyUnitsByName:{"BCH":currencyUnits[0], "mBCH":currencyUnits[1], "bits":currencyUnits[2], "sat":currencyUnits[3]},
+	currencyUnitsByName:{"BCHA":currencyUnits[0], "mBCHA":currencyUnits[1], "bits":currencyUnits[2], "sat":currencyUnits[3]},
 	baseCurrencyUnit:currencyUnits[3],
 	defaultCurrencyUnit:currencyUnits[0],
 	feeSatoshiPerByteBucketMaxima: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 50, 75, 100, 150],

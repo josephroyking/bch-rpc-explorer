@@ -43,10 +43,6 @@ block content
 									a(href=saInfo.referenceUrl) Read more
 
 
-			if (false)
-				pre
-					code.json.bg-light #{JSON.stringify(addressObj, null, 4)}
-
 			ul.nav.nav-tabs.mb-3
 				li.nav-item
 					a.nav-link.active(data-toggle="tab", href="#tab-details", role="tab") Details
@@ -56,14 +52,6 @@ block content
 
 			div.tab-content
 				div.tab-pane.active(id="tab-details", role="tabpanel")
-
-					if (false && config.electrumXServers && config.electrumXServers.length > 0)
-						if (session.hideElectrumTrustWarnings != "true")
-							div(class="alert alert-primary alert-dismissible clearfix shadow-sm", role="alert")
-								span this explorer is database-free, it doesn't natively support address balances and transaction histories. In order to provide this functionality, address balances and transaction history can be requested from a configurable set of ElectrumX servers. If multiple ElectrumX servers are configured, the results are cross-referenced and conflicts noted. For the transaction history displayed below, only the transaction identifiers from ElectrumX are used; the transaction details are requested via RPC from this app's primary node, as usual.
-
-								a.close(href="/changeSetting?name=hideElectrumTrustWarnings&value=true", aria-label="Close", style="text-decoration: none;")
-									span(aria-hidden="true") &times;
 
 					div.card.mb-3.shadow-sm
 						div.card-header
@@ -113,10 +101,6 @@ block content
 												span #{moment.utc(new Date(firstSeenTransaction.time * 1000)).format("Y-MM-DD HH:mm:ss")} utc
 												- var timeAgoTime = firstSeenTransaction.time;
 												include includes/time-ago.pug
-
-												if (false)
-													pre
-														code.json.bg-light #{JSON.stringify(firstSeenTransaction)}
 
 									if (balance)
 										if (balance.conflictedResults)
@@ -168,8 +152,8 @@ block content
 											div.summary-split-table-content.text-monospace #{electrumScripthash}
 
 									- var x = result.validateaddress;
-									- var flagNames = ["Is Valid?", "Is Script?", "Is Mine?", "Is Watch-Only?"];
-									- var flags = [x.isvalid, x.isscript, x.ismine, x.iswatchonly];
+									- var flagNames = ["Is Valid?", "Is Script?"];
+									- var flags = [x.isvalid, x.isscript];
 
 									each flagName, index in flagNames
 										div.row
@@ -179,31 +163,6 @@ block content
 													i.fas.fa-check.text-success
 												else
 													i.fas.fa-times.text-warning
-
-					if (false)
-						div.card.shadow-sm.mb-3
-							div.card-header
-								span.h6 Flags
-							div.card-body
-								div.table-responsive
-									table.table.text-center
-										thead
-											tr
-												th Is Valid?
-												th Is Script?
-												th Is Mine?
-												th Is Watch-Only?
-										tbody
-											tr
-												- var x = result.validateaddress;
-												- var flags = [x.isvalid, x.isscript, x.ismine, x.iswatchonly];
-
-												each flag in flags
-													td
-														if (flag)
-															i.fas.fa-check.text-success
-														else
-															i.fas.fa-times.text-warning
 
 					div.card.mb-3.shadow-sm
 						div.card-body
@@ -252,104 +211,98 @@ block content
 										span.font-weight-bold #{electrumHistory.server}
 
 
-							if (true)
-								if (addressApiError && addressApiError.error && addressApiError.error.code && addressApiError.error.code == -32600)
-									span Failed to retrieve transaction history from ElectrumX. See
-									a(href="https://github.com/sickpig/bch-rpc-explorer/issues/67") Issue #67
-									span for more information.
+							if (addressApiError && addressApiError.error && addressApiError.error.code && addressApiError.error.code == -32600)
+								span Failed to retrieve transaction history from ElectrumX. See
+								a(href="https://github.com/sickpig/bch-rpc-explorer/issues/67") Issue #67
+								span for more information.
 
 
-								else if (addressApiError && addressApiError.userText)
-									div.text-danger Error: #{addressApiError.userText}
-								else if (addressDetailsErrors && addressDetailsErrors.length > 0)
-									// Electrs return the same kind of error for get_history and get_balance
-									- var set = new Set(addressDetailsErrors.map(item => JSON.stringify(item)));
-									- var uniqueAddressDetailsErrors = [...set].map(item => JSON.parse(item));
-									each err in uniqueAddressDetailsErrors
-										if (err.e && err.e.error && err.e.error.message == "history too large")
-											span Failed to retrieve transaction history from ElectrumX. See
-											a(href="https://github.com/sickpig/bch-rpc-explorer/issues/67") Issue #67
-											span for more information.
+							else if (addressApiError && addressApiError.userText)
+								div.text-danger Error: #{addressApiError.userText}
+							else if (addressDetailsErrors && addressDetailsErrors.length > 0)
+								// Electrs return the same kind of error for get_history and get_balance
+								- var set = new Set(addressDetailsErrors.map(item => JSON.stringify(item)));
+								- var uniqueAddressDetailsErrors = [...set].map(item => JSON.parse(item));
+								each err, errIndex in uniqueAddressDetailsErrors
+									if (err.e && err.e && err.e.message == "history too large")
+										span Failed to retrieve transaction history from ElectrumX because this address is involved in too many transactions (more than ElectrumX currently supports retrieving). See
+										a(href="https://github.com/janoside/btc-rpc-explorer/issues/67") Issue #67
+										span for more information.
 
-										else if (err.e && err.e.error && err.e.error.message == "failed to get confirmed status")
-											span Failed to retrieve transaction history from ElectrsCash server. As a workaround, consider starting ElectrsCash server with a custom --txid-limit argument, to support longer transaction histories.
+									else if (err.e && err.e.error && err.e.error.message == "failed to get confirmed status")
+										span Failed to retrieve transaction history from ElectrsCash server. As a workaround, consider starting ElectrsCash server with a custom --txid-limit argument, to support longer transaction histories.
 
-										else if (err == "No address API configured")
-											span No address API is configured. See
-											a(href="https://github.com/sickpig/bch-rpc-explorer/blob/master/.env-sample") the example configuration file
-											span for help setting up an address API if desired.
+									else if (err == "No address API configured")
+										span No address API is configured. See
+										a(href="https://github.com/sickpig/bch-rpc-explorer/blob/master/.env-sample") the example configuration file
+										span for help setting up an address API if desired.
+									else
+										span.text-danger Error retrieving transaction history (##{errIndex + 1})
+										pre
+											code.json #{JSON.stringify(err, null, 4)}
 
-								else if (transactions.length == 0)
-									span No transactions found
+							else if (transactions.length == 0)
+								span No transactions found
 
-								each tx, txIndex in transactions
-									//pre
-									//	code.json.bg-light #{JSON.stringify(tx, null, 4)}
-									div.card.shadow-sm(class=((txIndex < (transactions.length - 1) || txids.length > limit) ? "mb-3" : ""))
-										div.card-header.text-monospace.clearfix
-											div.float-left.mr-0
-												if (sort == "desc")
-													span ##{(addressDetails.txCount - offset - txIndex).toLocaleString()}
-												else
-													span ##{(offset + txIndex + 1).toLocaleString()}
-												span &ndash;
+							each tx, txIndex in transactions
+								//pre
+								//	code.json.bg-light #{JSON.stringify(tx, null, 4)}
+								div.card.shadow-sm(class=((txIndex < (transactions.length - 1) || txids.length > limit) ? "mb-3" : ""))
+									div.card-header.text-monospace.clearfix
+										div.float-left.mr-0
+											if (sort == "desc")
+												span ##{(addressDetails.txCount - offset - txIndex).toLocaleString()}
+											else
+												span ##{(offset + txIndex + 1).toLocaleString()}
+											span &ndash;
 
-											div.row
-												div.col-md-8
-													if (tx && tx.txid)
-														a(href=("/tx/" + tx.txid)) #{tx.txid}
+										div.row
+											div.col-md-8
+												if (tx && tx.txid)
+													a(href=("/tx/" + tx.txid)) #{tx.txid}
 
-														if (global.specialTransactions && global.specialTransactions[tx.txid])
-															span
-															a(data-toggle="tooltip", title=(coinConfig.name + " Fun! See transaction for details"))
-																i.fas.fa-certificate.text-primary
+													if (global.specialTransactions && global.specialTransactions[tx.txid])
+														span
+														a(data-toggle="tooltip", title=(coinConfig.name + " Fun! See transaction for details"))
+															i.fas.fa-certificate.text-primary
 
-													br
+												br
 
-													if (addrGainsByTx[tx.txid])
-														- var currencyValue = addrGainsByTx[tx.txid];
-														span.text-success +
-															include includes/value-display.pug
-
-														if (addrLossesByTx[tx.txid])
-															span  /
+												if (addrGainsByTx[tx.txid])
+													- var currencyValue = addrGainsByTx[tx.txid];
+													span.text-success +
+														include includes/value-display.pug
 
 													if (addrLossesByTx[tx.txid])
-														- var currencyValue = addrLossesByTx[tx.txid];
-														span.text-danger -
-															include includes/value-display.pug
+														span  /
 
-												div.col-md-4
-													div.text-md-right
-														if (tx.time)
-															- var timestampHuman = tx.time;
-															include includes/timestamp-human.pug
+												if (addrLossesByTx[tx.txid])
+													- var currencyValue = addrLossesByTx[tx.txid];
+													span.text-danger -
+														include includes/value-display.pug
 
-															br
+											div.col-md-4
+												div.text-md-right
+													if (tx.time)
+														- var timestampHuman = tx.time;
+														include includes/timestamp-human.pug
 
-															- var timeAgoTime = tx.time;
-															small.text-muted (
-																include includes/time-ago-text.pug
-																span ago)
+														br
 
-														else
-															span.text-danger Unconfirmed
+														- var timeAgoTime = tx.time;
+														small.text-muted (
+															include includes/time-ago-text.pug
+															span ago)
 
-										div.card-body
-											if (true)
-												- var txInputs = txInputsByTransaction[tx.txid];
-												- var blockHeight = blockHeightsByTxid[tx.txid];
-												- var txIOHighlightAddress = address;
+													else
+														span.text-danger Unconfirmed
 
-												include includes/transaction-io-details.pug
+									div.card-body
+										- var txInputs = txInputsByTransaction[tx.txid];
+										- var blockHeight = blockHeightsByTxid[tx.txid];
+										- var txIOHighlightAddress = address;
 
-							else
-								p Since this explorer is database-free, it doesn't natively support address transaction history. However, you can configure it to communicate with one or more ElectrumX servers to build and display this data. In doing so, you should be aware that you'll be trusting those ElectrumX servers. If you configure multiple servers the results obtained from each will be cross-referenced against the others. Communicating with ElectrumX servers will also impact your privacy since the servers will know what addresses you're interested in. If these tradeoffs are acceptable, you can see a list of public ElectrumX servers here:
-								a(href="https://uasf.saltylemon.org/electrum") https://uasf.saltylemon.org/electrum
-
-							if (false)
-								pre
-									code.json.bg-light #{JSON.stringify(transactions, null, 4)}
+										include includes/transaction-io-details.pug
 
 							if (!crawlerBot && addressDetails && addressDetails.txCount > limit)
 								- var txCount = addressDetails.txCount;

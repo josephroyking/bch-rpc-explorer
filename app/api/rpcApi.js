@@ -66,31 +66,15 @@ function getNetworkHashrate(blockCount=144) {
 	return getRpcDataWithParams({method:"getnetworkhashps", parameters:[blockCount]});
 }
 
-function getBlockStats(hash) {
+function getBlockStats(hash_or_height) {
 	if (semver.gte(global.btcNodeSemver, minRpcVersions.getblockstats)) {
-		if (hash == coinConfig.genesisBlockHashesByNetwork[global.activeBlockchain] && coinConfig.genesisBlockStatsByNetwork[global.activeBlockchain]) {
+		if ((hash_or_height == coinConfig.genesisBlockHashesByNetwork[global.activeBlockchain] || hash_or_height == 0) && coinConfig.genesisBlockStatsByNetwork[global.activeBlockchain]) {
 			return new Promise(function(resolve, reject) {
 				resolve(coinConfig.genesisBlockStatsByNetwork[global.activeBlockchain]);
 			});
 
 		} else {
-			return getRpcDataWithParams({method:"getblockstats", parameters:[hash]});
-		}
-	} else {
-		// unsupported
-		return unsupportedPromise(minRpcVersions.getblockstats);
-	}
-}
-
-function getBlockStatsByHeight(height) {
-	if (semver.gte(global.btcNodeSemver, minRpcVersions.getblockstats)) {
-		if (height == 0 && coinConfig.genesisBlockStatsByNetwork[global.activeBlockchain]) {
-			return new Promise(function(resolve, reject) {
-				resolve(coinConfig.genesisBlockStatsByNetwork[global.activeBlockchain]);
-			});
-
-		} else {
-			return getRpcDataWithParams({method:"getblockstats", parameters:[height]});
+			return getRpcDataWithParams({method:"getblockstats", parameters:[hash_or_height]});
 		}
 	} else {
 		// unsupported
@@ -160,100 +144,18 @@ function getChainTxStats(blockCount) {
 	return getRpcDataWithParams({method:"getchaintxstats", parameters:[blockCount]});
 }
 
-function getBlockByHeight(blockHeight) {
-	if (!config.blockByHeightSupport) {
-		return new Promise(function(resolve, reject) {
-			getRpcDataWithParams({method:"getblockhash", parameters:[blockHeight]}).then(function(blockhash) {
-				getBlockByHash(blockhash).then(function(block) {
-					resolve(block);
-
-				}).catch(function(err) {
-					reject(err);
-				});
-			}).catch(function(err) {
-				reject(err);
-			});
-		});
-	} else {
-		return new Promise(function(resolve, reject) {
-			getRpcDataWithParams({method:"getblock", parameters:[blockHeight]}).then(function(block) {
-				getBlockByHeightReal(blockHeight).then(function(block) {
-					resolve(block);
-
-				}).catch(function(err) {
-					reject(err);
-				});
-			}).catch(function(err) {
-				reject(err);
-			});
-		});
-	}
+function getBlockHash(blockHeight) {
+	return getRpcDataWithParams({method:"getblockhash", parameters:[blockHeight]});
 }
 
-function getBlockByHash(blockHash) {
-	debugLog("getBlockByHash: %s", blockHash);
-
-	return new Promise(function(resolve, reject) {
-		getRpcDataWithParams({method:"getblock", parameters:[blockHash]}).then(function(block) {
-			getRawTransaction(block.tx[0]).then(function(tx) {
-				block.coinbaseTx = tx;
-				block.totalFees = utils.getBlockTotalFeesFromCoinbaseTxAndBlockHeight(tx, block.height);
-				block.subsidy = coinConfig.blockRewardFunction(block.height, global.activeBlockchain);
-
-				resolve(block);
-
-			}).catch(function(err) {
-				reject(err);
-			});
-		}).catch(function(err) {
-			reject(err);
-		});
-	});
+function getBlock(hash_or_height) {
+	return getRpcDataWithParams({method:"getblock", parameters:[hash_or_height]});
 }
 
-function getBlockByHeightReal(blockHeight) {
-	debugLog("getBlockByHeightReal: %s", blockHeight);
-
-	return new Promise(function(resolve, reject) {
-		getRpcDataWithParams({method:"getblock", parameters:[blockHeight]}).then(function(block) {
-			getRawTransaction(block.tx[0]).then(function(tx) {
-				block.coinbaseTx = tx;
-				block.totalFees = utils.getBlockTotalFeesFromCoinbaseTxAndBlockHeight(tx, block.height);
-				block.subsidy = coinConfig.blockRewardFunction(block.height, global.activeBlockchain);
-
-				resolve(block);
-
-			}).catch(function(err) {
-				reject(err);
-			});
-		}).catch(function(err) {
-			reject(err);
-		});
-	});
+function getBlockHeader(hash_or_height) {
+	return getRpcDataWithParams({method:"getblockheader", parameters:[hash_or_height]});
 }
 
-function getBlockHeaderByHash(blockhash) {
-	return getRpcDataWithParams({method:"getblockheader", parameters:[blockhash]});
-}
-
-function getBlockHeaderByHeight(blockHeight) {
-	if (!config.headerByHeightSupport) {
-		return new Promise(function(resolve, reject) {
-			getRpcDataWithParams({method:"getblockhash", parameters:[blockHeight]}).then(function(blockhash) {
-				getBlockHeaderByHash(blockhash).then(function(blockHeader) {
-					resolve(blockHeader);
-
-				}).catch(function(err) {
-					reject(err);
-				});
-			}).catch(function(err) {
-				reject(err);
-			});
-		});
-	} else {
-		return getRpcDataWithParams({method:"getblockheader", parameters:[blockHeight]});
-	}
-}
 function getAddress(address) {
 	return getRpcDataWithParams({method:"validateaddress", parameters:[address]});
 }
@@ -287,6 +189,10 @@ function getRawTransaction(txid) {
 
 					return;
 				}
+
+				// ABC & BCHN do not set the confirmations property on unconfirmed TXs
+				if (result.confirmations === undefined)
+					result.confirmations = 0;
 
 				resolve(result);
 
@@ -526,8 +432,8 @@ module.exports = {
 	getMempoolInfo: getMempoolInfo,
 	getMempoolTxids: getMempoolTxids,
 	getMiningInfo: getMiningInfo,
-	getBlockByHeight: getBlockByHeight,
-	getBlockByHash: getBlockByHash,
+	getBlockHash: getBlockHash,
+	getBlock: getBlock,
 	getRawTransaction: getRawTransaction,
 	getUtxo: getUtxo,
 	getMempoolTxDetails: getMempoolTxDetails,
@@ -541,9 +447,7 @@ module.exports = {
 	getUtxoSetSummary: getUtxoSetSummary,
 	getNetworkHashrate: getNetworkHashrate,
 	getBlockStats: getBlockStats,
-	getBlockStatsByHeight: getBlockStatsByHeight,
-	getBlockHeaderByHash: getBlockHeaderByHash,
-	getBlockHeaderByHeight: getBlockHeaderByHeight,
+	getBlockHeader: getBlockHeader,
 	decodeScript: decodeScript,
 	decodeRawTransaction: decodeRawTransaction,
 

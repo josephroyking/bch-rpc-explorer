@@ -169,7 +169,7 @@ function onRpcConnectionVerified(getnetworkinfo, getblockchaininfo) {
 
 	global.getnetworkinfo = getnetworkinfo;
 
-	var bitcoinCoreVersionRegex = /^.*\/BCH Unlimited\:(.*)\/.*$/;
+	var bitcoinCoreVersionRegex = /^.*\/Bitcoin ABC\:(.*)\/.*$/;
 
 	var match = bitcoinCoreVersionRegex.exec(getnetworkinfo.subversion);
 	if (match) {
@@ -207,7 +207,7 @@ function onRpcConnectionVerified(getnetworkinfo, getblockchaininfo) {
 		// short-circuit: force all RPC calls to pass their version checks - this will likely lead to errors / instability / unexpected results
 		global.btcNodeSemver = "1000.1000.0"
 
-		debugLogError(`Unable to parse node version string: ${getnetworkinfo.subversion} - RPC versioning will likely be unreliable. Is your node a version of Bitcoin Core?`);
+		debugLogError(`Unable to parse node version string: ${getnetworkinfo.subversion} - RPC versioning will likely be unreliable. Is your node a version of Bitcoin ABC?`);
 	}
 
 	debugLog(`RPC Connected: version=${getnetworkinfo.version} subversion=${getnetworkinfo.subversion}, parsedVersion(used for RPC versioning)=${global.btcNodeSemver}, protocolversion=${getnetworkinfo.protocolversion}, chain=${getblockchaininfo.chain}, services=${services}`);
@@ -272,7 +272,7 @@ function refreshNetworkVolumes() {
 
 		for (var i = 0; i < (blocksPerDay * 1); i++) {
 			if (result.blocks - i >= 0) {
-				promises.push(coreApi.getBlockStatsByHeight(result.blocks - i));
+				promises.push(coreApi.getBlockStats(result.blocks - i));
 			}
 		}
 
@@ -322,7 +322,7 @@ function refreshNetworkVolumes() {
 				debugLog(`Network volume: ${JSON.stringify(global.networkVolume)}`);
 
 			} else {
-				debugLog("Unable to load network volume, likely due to bitcoind version older than BCH Unlimited 1.8.0 (the first version to support getblockstats).");
+				debugLog("Unable to load network volume, likely due to bitcoind version older than Bitcoin ABC v0.19.12 (the first version to support getblockstats).");
 			}
 		});
 	});
@@ -597,25 +597,14 @@ app.use(function (req, res, next) {
 
 // development error handler
 // will print stacktrace
-if (app.get('env') === 'development') {
-	app.use(function (err, req, res, next) {
-		res.status(err.status || 500);
-		res.render('error', {
-			message: err.message,
-			error: err
-		});
-	});
-}
-
-// production error handler
-// no stacktraces leaked to user
-app.use(function (err, req, res, next) {
+app.use(function(err, req, res, next) {
 	res.status(err.status || 500);
 	res.render('error', {
 		message: err.message,
-		error: {}
+		error: (String(app.get('env')) === 'development') ? err:{}
 	});
 });
+
 
 app.locals.moment = moment;
 app.locals.Decimal = Decimal;

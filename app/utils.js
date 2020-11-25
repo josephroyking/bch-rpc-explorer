@@ -8,6 +8,7 @@ var debugPerfLog = debug("bchexp:actionPerformace");
 var Decimal = require("decimal.js");
 var request = require("request");
 var qrcode = require("qrcode");
+var textdecoding = require("text-decoding");
 
 var config = require("./config.js");
 var coins = require("./coins.js");
@@ -112,6 +113,14 @@ function hex2ascii(hex) {
 	return str;
 }
 
+function hex2array(hex) {
+	return new Uint8Array(hex.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+}
+
+function hex2string(hex, encoding = 'utf-8') {
+	return new textdecoding.TextDecoder(encoding).decode(hex2array(hex))
+}
+
 function splitArrayIntoChunks(array, chunkSize) {
 	var j = array.length;
 	var chunks = [];
@@ -185,11 +194,7 @@ function getCurrencyFormatInfo(formatType) {
 		}
 	}
 
-	if (formatCurrencyCache[formatType] != null) {
-		return formatCurrencyCache[formatType];
-	}
-
-	return null;
+	return formatCurrencyCache[formatType];
 }
 
 function formatCurrencyAmountWithForcedDecimalPlaces(amount, formatType, forcedDecimalPlaces) {
@@ -389,7 +394,7 @@ function logMemoryUsage() {
 	var mbTotal = process.memoryUsage().heapTotal / 1024 / 1024;
 	mbTotal = Math.round(mbTotal * 100) / 100;
 
-	debugLog("memoryUsage: heapUsed=" + mbUsed + ", heapTotal=" + mbTotal + ", ratio=" + parseInt(mbUsed / mbTotal * 100));
+	//debugLog("memoryUsage: heapUsed=" + mbUsed + ", heapTotal=" + mbTotal + ", ratio=" + parseInt(mbUsed / mbTotal * 100));
 }
 
 function getTxTotalInputOutputValues(tx, txInputs, blockHeight) {
@@ -681,6 +686,8 @@ module.exports = {
 	reflectPromise: reflectPromise,
 	redirectToConnectPageIfNeeded: redirectToConnectPageIfNeeded,
 	hex2ascii: hex2ascii,
+	hex2array: hex2array,
+	hex2string: hex2string,
 	splitArrayIntoChunks: splitArrayIntoChunks,
 	splitArrayIntoChunksByChunkCount: splitArrayIntoChunksByChunkCount,
 	getRandomString: getRandomString,
