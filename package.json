@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "async": "^3.2.0",
+    "axios": "^0.21.0",
     "basic-auth": "^2.0.1",
     "bitcoin-core": "EchterAgo/bitcoin-core#c30b4a0cd51305449c08ca361b15afc1646b5388",
     "bitcoinjs-lib": "^5.1.8",
@@ -43,6 +44,7 @@
     "moment": "^2.27.0",
     "moment-duration-format": "^2.3.2",
     "morgan": "^1.10.0",
+    "msgpack-lite": "^0.1.26",
     "pug": "^2.0.4",
     "qrcode": "^1.4.4",
     "redis": "^2.8.0",
@@ -50,8 +52,7 @@
     "semver": "^7.3.2",
     "serve-favicon": "^2.5.0",
     "simple-git": "^1.132.0",
-    "text-decoding": "^1.0.0",
-    "msgpack-lite": "^0.1.26"
+    "text-decoding": "^1.0.0"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^3.6.0",
