@@ -15,17 +15,27 @@ block content
 			small.text-monospace #{txid}
 		hr
 		
-		if (slpValidResponse)
+		if (slpValidResponse && txDetailsResponse.tokenReceivers)
 			h1.h3.word-wrap SLPA Transaction			
 				br
-				small.text-monospace slpIsValid #{slpValidResponse}
-				br
-				if (txDetailsResponse) 
-					small.text-monospace Transaction Type #{txDetailsResponse.transactionType}
+				if (txDetailsResponse && txDetailsResponse.transactionType === "SEND")
+					small.text-monospace Token ID: #{txDetailsResponse.tokenIdHex}
 					br
-					small.text-monospace Token ID #{txDetailsResponse.tokenIdHex}
+					small.text-monospace Token Name: #{txDetailsResponse.tokenName} (#{txDetailsResponse.tokenTicker})
+					if (txDetailsResponse.tokenSendingAddress)						
+						br
+						br
+						small.text-monospace #{txDetailsResponse.tokenSendingAddress} sent #{txDetailsResponse.tokenReceivers[0].amount} #{txDetailsResponse.tokenName} (#{txDetailsResponse.tokenTicker}) to #{txDetailsResponse.tokenReceivers[0].address}
+					else
+						br
+						br
+						small.text-monospace #{txDetailsResponse.tokenReceivers[0].address} received #{txDetailsResponse.tokenReceivers[0].amount} #{txDetailsResponse.tokenName} (#{txDetailsResponse.tokenTicker})
+				if (txDetailsResponse && txDetailsResponse.transactionType === "GENESIS")
+					small.text-monospace Genesis Transaction
 					br
-					small.text-monospace Send Outputs #{JSON.stringify(txDetailsResponse.sendOutputs)}
+					small.text-monospace Token ID: #{txDetailsResponse.tokenIdHex}
+					br
+					small.text-monospace Token Name: #{txDetailsResponse.tokenName} (#{txDetailsResponse.tokenTicker})
 		hr
 
 
