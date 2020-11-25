@@ -16,18 +16,14 @@ Copy content from [./bch-explorer.conf](./bch-explorer.conf) into `/etc/nginx/si
 
     certbot --nginx -d bch-explorer.com #use your domain name here
     cd /home/bitcoin
-    git clone https://github.com/sickpig/bch-rpc-explorer.git
+    git clone https://github.com/majcosta/bch-rpc-explorer.git
     cd /home/bitcoin/bch-rpc-explorer
     npm install
     pm2 start bin/www --name "bch-rpc-explorer"
 
 If you want your explorer being able to show transactions with a feerate lower than 1 sat/byte you should
-configure your full nodes to accept those on its mempool. To do that if you are using BCH unlimited you should
+configure your full nodes to accept those on its mempool. To do that if you are using Bitcoin ABC you should
 add this setting to `bitcoin.conf`
-
-    minlimitertxfee=0.5
-
-If you are using BCHN you have to use this parameter instead:
 
     minrelaytxfee=500
 
