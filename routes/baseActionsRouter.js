@@ -379,7 +379,7 @@ router.get("/block/:blockHash", function (req, res, next) {
 	});
 });
 
-router.get("/tx/:transactionId", function (req, res, next) {
+router.get("/tx/:transactionId", async function (req, res, next) {
 	var txid = req.params.transactionId;
 
 	var output = -1;
@@ -391,6 +391,16 @@ router.get("/tx/:transactionId", function (req, res, next) {
 	res.locals.output = output;
 
 	res.locals.result = {};
+
+	// Because the txDetails endpoint is slow, only hit it if this is a valid SLPA tx
+  let isValidSlpa;
+  let slpApiValidResponse;
+  try {
+    slpApiValidResponse = await slpApi.validateSlpTx(txid)
+    isValidSlpa = slpApiValidResponse.valid
+  } catch (err) {
+    isValidSlpa = false;
+  }
 
 	coreApi.getRawTransactionsWithInputs([txid]).then(function (rawTxResult) {
 		var tx = rawTxResult.transactions[0];
