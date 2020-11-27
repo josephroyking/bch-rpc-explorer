@@ -397,10 +397,11 @@ router.get("/tx/:transactionId", async function (req, res, next) {
   let slpApiValidResponse;
   try {
     slpApiValidResponse = await slpApi.validateSlpTx(txid)
-    isValidSlpa = slpApiValidResponse.valid
+		isValidSlpa = slpApiValidResponse.valid
+		
   } catch (err) {
     isValidSlpa = false;
-  }
+	}
 
 	coreApi.getRawTransactionsWithInputs([txid]).then(function (rawTxResult) {
 		var tx = rawTxResult.transactions[0];
@@ -409,6 +410,62 @@ router.get("/tx/:transactionId", async function (req, res, next) {
 		res.locals.result.txInputs = rawTxResult.txInputsByTransaction[txid]
 
 		var promises = [];
+
+		// If valid SLPA tx, get details
+		if (isValidSlpa) {
+			promises.push(
+				new Promise(function (resolve, reject) {
+					slpApi
+						.txDetails(txid)
+						.then(function (apiResponse) {
+							// If not found
+							// Response will be { error: 'TXID not found' }
+							const tokenTxDetails = apiResponse.tokenInfo
+
+							// Parse for the sending address
+							let tokenReceivers = [];
+							let tokenSendingAddress = false;
+
+							const tokenInputs = tokenTxDetails.sendInputsFull;
+							const tokenOutputs = tokenTxDetails.sendOutputsFull;							
+							
+							// Create array of input addresses
+							const inputAddresses = tokenInputs.map(function (input) {
+								return input.address;
+							});							
+
+							// Iterate over outputs to find a change address
+							for (let i = 0; i < tokenOutputs.length; i += 1) {
+								const output = tokenOutputs[i]
+								const outputAddress = output.address;
+								// If this output address is also an input address
+								if (inputAddresses.includes(outputAddress)) {
+									// Then this is a change output and not a tokenReceiver output
+									// Also, you can deduce the sending address
+									tokenSendingAddress = outputAddress;
+									continue
+								}
+								else {
+									tokenReceivers.push(output)
+								}													
+							}	
+
+							tokenTxDetails.tokenSendingAddress = tokenSendingAddress;
+							tokenTxDetails.tokenReceivers = tokenReceivers;
+
+							res.locals.txDetailsResponse = tokenTxDetails;
+
+							resolve();
+						})
+						.catch(function (err) {
+							res.locals.txDetailsResponse = false;
+							//res.locals.pageErrors.push(utils.logError("slpRest.txDetails", err));
+							//reject(err)
+							resolve();
+						});
+				})
+			);
+		}
 
 		promises.push(new Promise(function (resolve, reject) {
 			coreApi.getTxUtxos(tx).then(function (utxos) {

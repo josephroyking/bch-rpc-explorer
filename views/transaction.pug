@@ -15,7 +15,7 @@ block content
 			small.text-monospace #{txid}
 		hr
 
-		if (slpValidResponse && txDetailsResponse.tokenReceivers)
+		if (txDetailsResponse && txDetailsResponse.tokenReceivers)
 			h1.h3.word-wrap SLPA Transaction			
 				br
 				if (txDetailsResponse && txDetailsResponse.transactionType === "SEND")
