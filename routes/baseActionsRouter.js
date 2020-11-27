@@ -10,6 +10,7 @@ var Decimal = require("decimal.js");
 var utils = require('./../app/utils.js');
 var config = require("./../app/config.js");
 var coreApi = require("./../app/api/coreApi.js");
+var slpApi = require("./../app/api/slpApi.js")
 var addressApi = require("./../app/api/addressApi.js");
 var rpcApi = require("./../app/api/rpcApi.js");
 
